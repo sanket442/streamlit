@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
@@ -7,10 +8,9 @@ import plotly.express as px
 # ---------------------------------------------------------
 # GOOGLE SHEET AUTH
 # ---------------------------------------------------------
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive"
-]
+scope = ["https://www.googleapis.com/auth/spreadsheets",
+         "https://www.googleapis.com/auth/drive"]
+
 creds = ServiceAccountCredentials.from_json_keyfile_dict(
     st.secrets["google"],
     scope
@@ -114,4 +114,5 @@ if "ITEM NAME" in df.columns:
         title="Item Name vs Total Order Weight",
     )
     st.plotly_chart(fig_item)
+
 
