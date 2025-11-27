@@ -11,7 +11,10 @@ scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    st.secrets["google"],
+    scope
+)
 client = gspread.authorize(creds)
 
 # ---------------------------------------------------------
@@ -111,3 +114,4 @@ if "ITEM NAME" in df.columns:
         title="Item Name vs Total Order Weight",
     )
     st.plotly_chart(fig_item)
+
