@@ -536,11 +536,11 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
 
             # Enforce consistent size and centering
             fig_item_pie.update_layout(
-                height=450, 
+                height=700, # <-- INCREASED HEIGHT TO PREVENT CUTOFF
                 title_x=0.5,
                 uniformtext_minsize=12,
                 uniformtext_mode='hide',
-                # FIX: Set horizontal legend to maintain chart size
+                # Set horizontal legend below the chart
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
@@ -570,11 +570,11 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
             )
             # Enforce consistent size and centering
             fig_purity_pie.update_layout(
-                height=450, 
+                height=700, # <-- INCREASED HEIGHT TO PREVENT CUTOFF
                 title_x=0.5, 
                 uniformtext_minsize=12, 
                 uniformtext_mode='hide',
-                # FIX: Set horizontal legend to match the first chart's size
+                # Set horizontal legend below the chart
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
