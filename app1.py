@@ -478,7 +478,7 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
     st.write("---")
     
     ## 1. Remark Count Bar Chart (Excluding Blanks)
-    st.write("## 📊 Remark Frequency Count")
+    st.write("## 📊 No of problems Count")
 
     REMARK_COL = "LATE DELIVERY REASON"
     if REMARK_COL in df.columns:
@@ -512,22 +512,35 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
     col_pie1, col_pie2 = st.columns(2)
 
     # Pie Chart 1: Item Name vs Total Order Weight
-    with col_pie1:
-        if ITEM_COL in df.columns:
-            item_wt = df.groupby(ITEM_COL)["ORD WT"].sum().reset_index()
+    # Pie Chart 1: Item Name vs Total Order Weight
+with col_pie1:
+    if ITEM_COL in df.columns:
+        # Group data
+        item_wt = df.groupby(ITEM_COL)["ORD WT"].sum().reset_index()
 
-            fig_item_pie = px.pie(
-                item_wt,
-                names=ITEM_COL,
-                values="ORD WT",
-                title="Item Name Distribution by Total Order Weight",
-                hole=.3,
-            )
-            fig_item_pie.update_layout(title_x=0.5, uniformtext_minsize=12, uniformtext_mode='hide')
-            st.plotly_chart(fig_item_pie, use_container_width=True)
-        else:
-            st.info(f"Cannot generate Item Weight Pie Chart: Column '{ITEM_COL}' is missing.")
+        # Create pie chart
+        fig_item_pie = px.pie(
+            item_wt,
+            names=ITEM_COL,
+            values="ORD WT",
+            title="Item Name by Total Order Weight",
+            hole=.3,
+        )
 
+        # Make chart bigger + center title + clean text
+        fig_item_pie.update_layout(
+            width=700,      # chart width
+            height=700,     # chart height
+            title_x=0.5,
+            uniformtext_minsize=12,
+            uniformtext_mode='hide'
+        )
+
+        # Show chart
+        st.plotly_chart(fig_item_pie, use_container_width=True)
+
+    else:
+        st.info(f"Cannot generate Item Weight Pie Chart: Column '{ITEM_COL}' is missing.")
     # Pie Chart 2: Purity vs Total Order Weight
     with col_pie2:
         if PURITY_COL in df.columns:
@@ -549,7 +562,7 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
     st.write("---")
     
     ## 4. Item Wise Delivery Time (Min, Max, Avg)
-    st.write("## ⏱️ Item Wise Delivery Lead Time Analysis")
+    st.write("## ⏱️ Item Wise Production time Analysis")
     LEAD_TIME_COL = 'LEAD TIME (DAYS)'
 
     if ITEM_COL in df.columns and LEAD_TIME_COL in df.columns:
@@ -614,3 +627,4 @@ elif not df.empty:
     st.warning("Cannot display charts or raw data due to missing required numeric columns.")
 else:
     st.warning("The dataset is empty after applying filters.")
+
