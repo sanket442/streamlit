@@ -534,21 +534,26 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
                 hole=.3,
             )
 
-            # Enforce consistent size and centering
-            # FIX: Changed legend to vertical orientation on the right (x=1.05) 
-            # and increased height to accommodate the long legend list.
+            # FIX: Enforce fixed size and control the domain of the pie chart itself
+            fig_item_pie.update_traces(
+                # Use a large domain to make the pie chart big within the available space
+                marker={'colors': px.colors.sequential.Plotly3}, # Ensure colors are assigned to traces
+                domain={'x': [0.0, 0.7], 'y': [0.1, 1.0]} # Pie takes 0% to 70% of horizontal space
+            )
+            
             fig_item_pie.update_layout(
                 height=700, 
-                title_x=0.5,
+                width=500, # Enforce a specific width for better consistency
+                title_x=0.05, # Align title to left to make space for pie
                 uniformtext_minsize=12,
                 uniformtext_mode='hide',
+                # Legend placement to the right of the pie (0.75-1.0)
                 legend=dict(
-                    orientation="v", # Vertical legend
+                    orientation="v", 
                     yanchor="top",
-                    y=1, 
+                    y=1.0, 
                     xanchor="left",
-                    x=1.05, # Positioned outside the plot area on the right
-                    # Optional: Adjust font size to fit more items
+                    x=0.75, 
                     font=dict(size=9)
                 )
             )
@@ -571,18 +576,23 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
                 title="Purity Distribution by Total Order Weight",
                 hole=.3,
             )
-            # Enforce consistent size and centering
-            # Using the previous horizontal layout with increased height (700) 
-            # since this chart has fewer categories.
+            # FIX: Enforce fixed size and control the domain of the pie chart itself
+            fig_purity_pie.update_traces(
+                marker={'colors': px.colors.sequential.Plotly3}, # Ensure colors are assigned to traces
+                domain={'x': [0.0, 0.9], 'y': [0.1, 1.0]} # Pie takes 0% to 90% of horizontal space (more compact legend)
+            )
+            
             fig_purity_pie.update_layout(
                 height=700, 
+                width=500, # Enforce a specific width for better consistency
                 title_x=0.5, 
                 uniformtext_minsize=12, 
                 uniformtext_mode='hide',
+                # Legend horizontal, below the chart
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
-                    y=-0.2, 
+                    y=-0.05, 
                     xanchor="center",
                     x=0.5
                 )
