@@ -535,18 +535,21 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
             )
 
             # Enforce consistent size and centering
+            # FIX: Changed legend to vertical orientation on the right (x=1.05) 
+            # and increased height to accommodate the long legend list.
             fig_item_pie.update_layout(
-                height=700, # <-- INCREASED HEIGHT TO PREVENT CUTOFF
+                height=700, 
                 title_x=0.5,
                 uniformtext_minsize=12,
                 uniformtext_mode='hide',
-                # Set horizontal legend below the chart
                 legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=-0.2, 
-                    xanchor="center",
-                    x=0.5
+                    orientation="v", # Vertical legend
+                    yanchor="top",
+                    y=1, 
+                    xanchor="left",
+                    x=1.05, # Positioned outside the plot area on the right
+                    # Optional: Adjust font size to fit more items
+                    font=dict(size=9)
                 )
             )
 
@@ -569,12 +572,13 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
                 hole=.3,
             )
             # Enforce consistent size and centering
+            # Using the previous horizontal layout with increased height (700) 
+            # since this chart has fewer categories.
             fig_purity_pie.update_layout(
-                height=700, # <-- INCREASED HEIGHT TO PREVENT CUTOFF
+                height=700, 
                 title_x=0.5, 
                 uniformtext_minsize=12, 
                 uniformtext_mode='hide',
-                # Set horizontal legend below the chart
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
