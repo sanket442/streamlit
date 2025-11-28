@@ -34,16 +34,16 @@ def load_data():
     if client is None:
         # Fallback to dummy data structure if creds are missing for demonstration
         df_data = {
-            "CONT.PERSON": ["John", "Jane", "John", "Alice", "Jane", "Alice", "John", "Jane"],
-            "ORD WT": [1000.0, 500.0, 2000.0, 1500.0, 800.0, 1200.0, 1800.0, 900.0],
-            "ON_TIME DEL": [800.0, 400.0, 0.0, 1000.0, 800.0, 1000.0, 1500.0, 900.0],
-            "LATE_DEL": [50.0, 0.0, 1500.0, 500.0, 0.0, 200.0, 0.0, 0.0],
-            "ODR DATE": ["2025-01-10", "2025-01-15", "2025-03-01", "2025-04-05", "2025-05-20", "2025-06-10", "2025-07-01", "2025-08-01"], 
-            "DUE DATE": ["2025-01-20", "2025-01-25", "2025-03-10", "2025-04-15", "2025-05-30", "2025-06-25", "2025-07-15", "2025-08-05"],
-            "LATE DELIVERY REASON": ["Raw Material Delay", "", "Production Issue", "Logistics", "Raw Material Delay", "", "Production Issue", "Logistics"],
-            "ITEM NAME": ["A", "B", "A", "C", "B", "A", "C", "B"],
-            "ORD NO": ["P1001", "P1002", "P1003", "P1004", "P1005", "P1006", "P1007", "P1008"],
-            "PURITY": ["99.9%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%"]
+            "CONT.PERSON": ["John", "Jane", "John", "Alice", "Jane", "Alice", "John", "Jane", "Bob", "Alice"],
+            "ORD WT": [1000.0, 500.0, 2000.0, 1500.0, 800.0, 1200.0, 1800.0, 900.0, 1100.0, 1300.0],
+            "ON_TIME DEL": [800.0, 400.0, 0.0, 1000.0, 800.0, 1000.0, 1500.0, 900.0, 1000.0, 1300.0],
+            "LATE_DEL": [50.0, 0.0, 1500.0, 500.0, 0.0, 200.0, 0.0, 0.0, 0.0, 0.0],
+            "ODR DATE": ["2025-01-10", "2025-01-15", "2025-03-01", "2025-04-05", "2025-05-20", "2025-06-10", "2025-07-01", "2025-08-01", "2025-08-15", "2025-09-01"], 
+            "DUE DATE": ["2025-01-20", "2025-01-25", "2025-03-10", "2025-04-15", "2025-05-30", "2025-06-25", "2025-07-15", "2025-08-05", "2025-08-25", "2025-09-10"],
+            "LATE DELIVERY REASON": ["Raw Material Delay", "", "Production Issue", "Logistics", "Raw Material Delay", "", "Production Issue", "Logistics", "", "Production Issue"],
+            "ITEM NAME": ["ROPE CHAIN", "M.CHAIN", "ROPE CHAIN", "BALL CHAIN", "M.CHAIN", "ROPE", "COCKTAIL", "ROPE", "MIX", "BALL CHAIN"],
+            "ORD NO": ["P1001", "P1002", "P1003", "P1004", "P1005", "P1006", "P1007", "P1008", "P1009", "P1010"],
+            "PURITY": ["22KT", "18KT", "22KT", "20KT", "18KT", "22KT", "21KT", "14KT", "22KT", "20KT"]
         }
         df = pd.DataFrame(df_data)
         st.info("Using dummy data. Real-time data loading requires 'st.secrets[\"google\"]'.")
@@ -536,10 +536,18 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
 
             # Enforce consistent size and centering
             fig_item_pie.update_layout(
-                height=450, # Adjusted for better view in a column
+                height=450, 
                 title_x=0.5,
                 uniformtext_minsize=12,
-                uniformtext_mode='hide'
+                uniformtext_mode='hide',
+                # FIX: Set horizontal legend to maintain chart size
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.2, 
+                    xanchor="center",
+                    x=0.5
+                )
             )
 
             # Show chart
@@ -562,10 +570,18 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
             )
             # Enforce consistent size and centering
             fig_purity_pie.update_layout(
-                height=450, # Adjusted to match the first pie chart
+                height=450, 
                 title_x=0.5, 
                 uniformtext_minsize=12, 
-                uniformtext_mode='hide'
+                uniformtext_mode='hide',
+                # FIX: Set horizontal legend to match the first chart's size
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.2, 
+                    xanchor="center",
+                    x=0.5
+                )
             )
             st.plotly_chart(fig_purity_pie, use_container_width=True)
         else:
