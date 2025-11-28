@@ -7,20 +7,18 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # ---------------------------------------------------------
-# GOOGLE SHEET AUTH
+# GOOGLE SHEET AUTH (Placeholder for deployment)
 # ---------------------------------------------------------
-scope = ["https://www.googleapis.com/auth/spreadsheets",
-         "https://www.googleapis.com/auth/drive"]
-
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    st.secrets["google"],
-    scope
-)
-client = gspread.authorize(creds)
-
-# ---------------------------------------------------------
-# LOAD SHEET
-# ---------------------------------------------------------
+try:
+    scope = ["https://www.googleapis.com/auth/spreadsheets",
+             "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["google"],
+        scope
+    )
+    client = gspread.authorize(creds)
+except (KeyError, FileNotFoundError, AttributeError):
+    client = None
 
 # ---------------------------------------------------------
 # LOAD SHEET AND DATA CLEANING
@@ -45,10 +43,10 @@ def load_data():
             "LATE DELIVERY REASON": ["Raw Material Delay", "", "Production Issue", "Logistics", "Raw Material Delay", "", "Production Issue", "Logistics"],
             "ITEM NAME": ["A", "B", "A", "C", "B", "A", "C", "B"],
             "ORD NO": ["P1001", "P1002", "P1003", "P1004", "P1005", "P1006", "P1007", "P1008"],
-            "PURITY": ["99.9%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%"] # Added dummy PURITY column
+            "PURITY": ["99.9%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%", "99.8%", "99.9%"]
         }
         df = pd.DataFrame(df_data)
-        st.info("Using dummy data. Real-time data loading requires 'key.json'.")
+        st.info("Using dummy data. Real-time data loading requires 'st.secrets[\"google\"]'.")
     else:
         try:
             sheet = client.open("PRODUCTION_ORDER_STATUS_REPORT").worksheet("ORDER_SHEET")
@@ -111,14 +109,10 @@ def load_data():
         missing_cols = [col for col in EXPECTED_NUMERIC_COLS if col not in df.columns]
         if missing_cols:
             st.error(f"🛑 CRITICAL ERROR: The following required numeric column(s) are missing from your sheet: {', '.join(missing_cols)}")
-        else:
-            st.error("🛑 CRITICAL ERROR: Calculation columns could not be created. Please check all column names.")
+        # If running with dummy data, this is unlikely to trigger unless column names are changed.
 
-    # 3. Lead Time Calculation (DUE DATE - ODR DATE) - FIX FOR KEY ERROR
+    # 3. Lead Time Calculation (DUE DATE - ODR DATE)
     if all(col in df.columns for col in ["DUE DATE", "ODR DATE"]):
-        st.info("Calculating Lead Time...")
-        
-        # Calculate difference in days directly on the main DataFrame
         df['LEAD TIME (DAYS)'] = (df["DUE DATE"] - df["ODR DATE"]).dt.days
         
     else:
@@ -335,13 +329,27 @@ else:
         .person-name-cell { padding-left: 5px !important; }
         
         /* Toggle icon styling for visibility */
+        /* Hides the default Streamlit toggle label and checkbox */
         [data-testid^="stForm"] + div > div > div:nth-child(1) [data-testid="stForm"] + div label { visibility: hidden; height: 0; margin: 0; padding: 0; }
         [data-testid^="stForm"] + div > div > div:nth-child(1) [data-testid="stForm"] + div input[type="checkbox"] { display: none; }
+        
+        /* Custom plus icon for toggle */
         [data-testid^="stForm"] + div > div > div:nth-child(1) [data-testid="stForm"] + div label:before {
-            visibility: visible; content: '➕'; font-size: 1.5em; color: #6a9ce7; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; cursor: pointer;
+            visibility: visible; 
+            content: '➕'; 
+            font-size: 1.5em; 
+            color: #6a9ce7; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            margin: 0; 
+            cursor: pointer;
         }
+        /* Custom minus icon for toggle when checked */
         [data-testid^="stForm"] + div > div > div:nth-child(1) [data-testid="stForm"] + div input[type="checkbox"]:checked + label:before {
-            content: '➖'; color: #d9534f;
+            content: '➖'; 
+            color: #d9534f;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -512,35 +520,34 @@ if not df.empty and all(col in df.columns for col in REQUIRED_MATRIX_COLS):
     col_pie1, col_pie2 = st.columns(2)
 
     # Pie Chart 1: Item Name vs Total Order Weight
-    # Pie Chart 1: Item Name vs Total Order Weight
-with col_pie1:
-    if ITEM_COL in df.columns:
-        # Group data
-        item_wt = df.groupby(ITEM_COL)["ORD WT"].sum().reset_index()
+    with col_pie1:
+        if ITEM_COL in df.columns:
+            # Group data
+            item_wt = df.groupby(ITEM_COL)["ORD WT"].sum().reset_index()
 
-        # Create pie chart
-        fig_item_pie = px.pie(
-            item_wt,
-            names=ITEM_COL,
-            values="ORD WT",
-            title="Item Name by Total Order Weight",
-            hole=.3,
-        )
+            # Create pie chart
+            fig_item_pie = px.pie(
+                item_wt,
+                names=ITEM_COL,
+                values="ORD WT",
+                title="Item Name by Total Order Weight",
+                hole=.3,
+            )
 
-        # Make chart bigger + center title + clean text
-        fig_item_pie.update_layout(
-            width=700,      # chart width
-            height=700,     # chart height
-            title_x=0.5,
-            uniformtext_minsize=12,
-            uniformtext_mode='hide'
-        )
+            # Enforce consistent size and centering
+            fig_item_pie.update_layout(
+                height=450, # Adjusted for better view in a column
+                title_x=0.5,
+                uniformtext_minsize=12,
+                uniformtext_mode='hide'
+            )
 
-        # Show chart
-        st.plotly_chart(fig_item_pie, use_container_width=True)
+            # Show chart
+            st.plotly_chart(fig_item_pie, use_container_width=True)
 
-    else:
-        st.info(f"Cannot generate Item Weight Pie Chart: Column '{ITEM_COL}' is missing.")
+        else:
+            st.info(f"Cannot generate Item Weight Pie Chart: Column '{ITEM_COL}' is missing.")
+
     # Pie Chart 2: Purity vs Total Order Weight
     with col_pie2:
         if PURITY_COL in df.columns:
@@ -553,7 +560,13 @@ with col_pie1:
                 title="Purity Distribution by Total Order Weight",
                 hole=.3,
             )
-            fig_purity_pie.update_layout(title_x=0.5, uniformtext_minsize=12, uniformtext_mode='hide')
+            # Enforce consistent size and centering
+            fig_purity_pie.update_layout(
+                height=450, # Adjusted to match the first pie chart
+                title_x=0.5, 
+                uniformtext_minsize=12, 
+                uniformtext_mode='hide'
+            )
             st.plotly_chart(fig_purity_pie, use_container_width=True)
         else:
             st.info(f"Cannot generate Purity Pie Chart: Column '{PURITY_COL}' is missing.")
@@ -567,7 +580,6 @@ with col_pie1:
 
     if ITEM_COL in df.columns and LEAD_TIME_COL in df.columns:
         # Group by ITEM NAME and calculate min, max, average lead time
-        # FIX APPLIED HERE: Changed tuple arguments to function strings.
         delivery_time_summary = df.groupby(ITEM_COL)[LEAD_TIME_COL].agg(
             min_lead='min',
             max_lead='max',
@@ -627,4 +639,3 @@ elif not df.empty:
     st.warning("Cannot display charts or raw data due to missing required numeric columns.")
 else:
     st.warning("The dataset is empty after applying filters.")
-
