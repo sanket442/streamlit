@@ -6,6 +6,43 @@ import plotly.express as px
 import numpy as np
 from datetime import datetime, timedelta
 
+# --- PASSWORD PROTECTION CONFIG ---
+CORRECT_PASSWORD = "4567"
+AUTH_KEY = "authenticated"
+
+# Initialize session state for authentication if it doesn't exist
+if AUTH_KEY not in st.session_state:
+    st.session_state[AUTH_KEY] = False
+
+def check_password():
+    """Checks the entered password against the correct password."""
+    if st.session_state.password == CORRECT_PASSWORD:
+        st.session_state[AUTH_KEY] = True
+        st.experimental_rerun()
+    else:
+        st.session_state[AUTH_KEY] = False
+        st.error("🚫 Invalid Password. Please try again.")
+
+# If not authenticated, show the password prompt and stop
+if not st.session_state[AUTH_KEY]:
+    st.title("🔒 Production Delivery Dashboard - Access Required")
+    st.write("Please enter the password to unlock the reports.")
+    
+    with st.form("login_form"):
+        st.text_input(
+            "Password", 
+            type="password", 
+            key="password",
+            placeholder="Type your password (e.g., 4567)"
+        )
+        st.form_submit_button("Unlock Reports", on_click=check_password)
+        
+    # Stop the script execution until authenticated
+    st.stop()
+
+# --- Everything below this line only runs if st.session_state[AUTH_KEY] is True ---
+
+
 # ---------------------------------------------------------
 # GOOGLE SHEET AUTH (Placeholder for deployment)
 # ---------------------------------------------------------
