@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 # --- SECURITY CONSTANT ---
 # Set the desired password
-PASSWORD = "4567"
+PASSWORD = st.secrets["APP_PASSWORD"]
 # Key to track login status in session state
 LOGIN_STATUS_KEY = "is_logged_in"
 
@@ -719,3 +719,4 @@ else:
         st.warning("Cannot display charts or raw data due to missing required numeric columns.")
     else:
         st.warning("The dataset is empty after applying filters.")
+
